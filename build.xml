@@ -1,0 +1,65 @@
+<?xml version="1.0" ?>
+<!-- name配置项目名称，default配置打包默认包。war、jar这种。-->
+<project name="MyProject" default="war">
+    <!-- property标签相当于Java中的成员变量，在下方会以${name}引用vale中的值 -->
+    <property name="junit-report" value="build/junit-report"/>
+    <!-- 这里配置JavaWeb项目需要使用的所有Jar包 -->
+    <path id="compile.classpath">
+        <fileset dir="webapp/WEB-INF/lib">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+    <!-- Ant任务：init，任务目的：创建文件夹 -->
+    <target name="init">
+        <mkdir dir="build/classes"/>
+        <mkdir dir="dist" />
+        <mkdir dir="build/junit-report" />
+    </target>
+    <!-- Ant任务：compile，任务目的：编译源代码 ,依赖（depends）：init任务-->
+    <target name="compile" depends="init" >
+        <!-- 将代码编译至destdir目录下，源代码的位置是在srcdir目录下 -->
+        <javac destdir="build/classes" debug="true" srcdir="src" encoding="UTF-8">
+            <!-- 使用refid引用上面配置的Jar包 -->
+            <classpath refid="compile.classpath"/>
+        </javac>
+    </target>
+    <!-- Ant任务：war，任务目的：打包，依赖（depends）：compile任务 -->
+    <target name="war" depends="compile">
+        <war destfile="dist/MyProject.war" webxml="webapp/WEB-INF/web.xml">
+            <fileset dir="webapp"/>
+            <classes dir="build/classes"/>
+        </war>
+    </target>
+    <!-- Ant任务：clean，任务目的：清除Ant任务产生的文件 -->
+    <target name="clean">
+        <delete dir="dist" />
+        <delete dir="build" />
+    </target>
+    <!-- Ant任务：junit，任务目的：测试，依赖（depends）：compile任务 -->
+    <target name="junit" depends="compile">
+        <!--配置测试报告生成的位置，这里使用${}引用上方的变量-->
+        <junitreport todir="${junit-report}">
+            <fileset dir="${junit-report}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+        </junitreport>
+        <!--配置运行时classpath-->
+        <path id="run_test_path">
+            <fileset dir="webapp/WEB-INF/lib">
+                <include name="*.jar"/>
+            </fileset>
+            <pathelement path="build/classes"/>
+        </path>
+
+        <junit printsummary="yes" haltonfailure="no">
+            <!--配置运行时classpath-->
+            <classpath refid="run_test_path" />
+            <!--测试报告以文本的形式生成，type配置成xml，以xml的形式生成测试报告-->
+            <formatter type="plain"/>
+            <batchtest fork="yes" todir="${junit-report}">
+                <!-- 这里路径指向测试类 -->
+                <fileset dir="src" includes="/**/*Test.java"/>
+            </batchtest>
+        </junit>
+    </target>
+</project>

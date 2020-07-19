@@ -12,6 +12,7 @@ public class OurConrollerTest {
     @Test
     public void test(){
         logger.info("===========uuu========");
+        assert (true);
     }
 
     @Test
