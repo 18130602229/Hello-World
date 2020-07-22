@@ -20,4 +20,8 @@ public class OurConrollerTest {
         int a = 1/0;
         assert (a > 0);
     }
+    @Test
+    public void test2() throws Exception {
+        throw  new Exception("is a error");
+    }
 }
